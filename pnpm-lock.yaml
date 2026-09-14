@@ -467,6 +467,24 @@ importers:
         specifier: ~8.2.2
         version: 8.2.2(@types/node@26.5.1)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0)
 
+  studio:
+    dependencies:
+      '@nuxt/fonts':
+        specifier: https://pkg.pr.new/@nuxt/fonts@35924e7
+        version: https://pkg.pr.new/@nuxt/fonts@35924e7(db0@0.4.1)(esbuild@0.28.2)(ioredis@5.11.1(supports-color@10.2.2))(magic-string@1.2.3)(magicast@0.5.4)(oxc-parser@0.148.0)(postcss@8.5.28)(rolldown@1.2.8)(rollup@4.63.1)(subset-font@2.7.0)(vite@8.2.2(@types/node@26.5.1)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))
+      airspace:
+        specifier: workspace:*
+        version: link:..
+      nitro:
+        specifier: 3.0.260903-beta
+        version: 3.0.260903-beta
+      nuxt:
+        specifier: npm:nuxt-nightly@5x
+        version: nuxt-nightly@5.0.0-29819633.9319fd64(9e09d9fb646eb6ab9ee7e64c3677921d)
+      vue:
+        specifier: ^3.5.0
+        version: 3.5.42(typescript@6.0.3)
+
 packages:
 
   '@ampproject/remapping@2.3.0':

@@ -1,0 +1,19 @@
+{
+  "name": "airspace-studio",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@nuxt/fonts": "https://pkg.pr.new/@nuxt/fonts@35924e7",
+    "airspace": "workspace:*",
+    "nitro": "3.0.260903-beta",
+    "nuxt": "npm:nuxt-nightly@5x",
+    "vue": "^3.5.0"
+  }
+}
