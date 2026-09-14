@@ -59,6 +59,7 @@ trustPolicyExclude:
 packages:
   - examples/*
   - docs
+  - studio
 
 # The dev-env alpha's "^0.0.0-spaces-alpha-*" ranges also match a broken @atproto/lex@0.0.0 on npm.
 overrides:
