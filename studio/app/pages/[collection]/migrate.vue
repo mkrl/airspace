@@ -84,6 +84,7 @@ useSeoMeta({ title: () => `Migrate ${collectionName.value} · airspace studio` }
             v-for="(field, name) in collection.fields"
             :key="name"
             :name="name"
+            :input-name="`${collection.name}.${record.rkey}.${name}`"
             :schema="field"
             :required="collection.required.includes(name)"
             :model-value="values[record.rkey]?.[name]"

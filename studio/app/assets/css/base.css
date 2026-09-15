@@ -505,6 +505,21 @@ main h2 {
   font-weight: 600;
 }
 
+.list-item {
+  position: relative;
+}
+
+.list-item > .field > .field-name,
+.list-item > .object-field > legend {
+  padding-right: 4rem;
+}
+
+.list-item-remove {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
 .inline-action {
   justify-self: start;
   padding: 0;
