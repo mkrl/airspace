@@ -295,26 +295,30 @@ main h2 {
   gap: 2px;
 }
 
-.studio-sidebar nav button,
-.record-list button {
+.studio-sidebar nav a,
+.record-list a {
   display: grid;
   min-width: 0;
   padding: var(--space-2xs);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
   border-color: transparent;
+  color: inherit;
   text-align: left;
+  text-decoration: none;
 }
 
-.studio-sidebar nav button span,
-.studio-sidebar nav button small,
-.record-list button strong,
-.record-list button small {
+.studio-sidebar nav a span,
+.studio-sidebar nav a small,
+.record-list a strong,
+.record-list a small {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.studio-sidebar nav button.active,
-.record-list button.active {
+.studio-sidebar nav a.active,
+.record-list a.router-link-active {
   border-color: var(--color-rule-strong);
   background: var(--color-paper-2);
 }
@@ -359,6 +363,14 @@ main h2 {
 .record-list .empty {
   color: var(--color-ink-2);
   font-size: var(--text-sm);
+}
+
+.routed-list {
+  border-bottom: 0;
+}
+
+.routed-editor {
+  max-width: 48rem;
 }
 
 .record-editor {

@@ -4,11 +4,11 @@ import type { NuxtError } from 'nuxt/app'
 const props = defineProps<{ error: NuxtError }>()
 
 const missing = props.error.statusCode === 404
-const title = computed(() => `${props.error.statusCode || 500} · Airspace Studio`)
+const title = computed(() => `${props.error.statusCode || 500} · airspace studio`)
 
 useSeoMeta({
   title,
-  description: missing ? 'That page does not exist in Airspace Studio.' : 'Something went wrong.',
+  description: missing ? 'That page does not exist in airspace studio.' : 'Something went wrong.',
   robots: 'noindex',
 })
 </script>
