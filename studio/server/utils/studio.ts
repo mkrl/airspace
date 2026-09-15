@@ -82,6 +82,38 @@ export function requireCollection(name: string) {
   return collection
 }
 
+function normalizeFields(value: Record<string, unknown>, fields: Record<string, StudioField>, prefix = ''): { value: Record<string, unknown>, removed: string[] } {
+  const output: Record<string, unknown> = {}
+  const removed: string[] = []
+  for (const [name, fieldValue] of Object.entries(value)) {
+    if (name === '$type') {
+      output[name] = fieldValue
+      continue
+    }
+    const field = fields[name]
+    if (!field) {
+      removed.push(`${prefix}${name}`)
+      continue
+    }
+    if (field.properties && fieldValue && typeof fieldValue === 'object' && !Array.isArray(fieldValue)) {
+      const nested = normalizeFields(fieldValue as Record<string, unknown>, field.properties, `${prefix}${name}.`)
+      output[name] = nested.value
+      removed.push(...nested.removed)
+    }
+    else {
+      output[name] = fieldValue
+    }
+  }
+  return { value: output, removed }
+}
+
+export function prepareMigrationValue(name: string, value: Record<string, unknown>) {
+  const description = collectionDescriptions().find(collection => collection.name === name)
+  if (!description)
+    throw createError({ statusCode: 404, message: `unknown collection: ${name}` })
+  return normalizeFields(value, description.fields)
+}
+
 async function requireCredentials(event: RequestEvent): Promise<Credentials> {
   const { data } = await studioSession(event)
   if (!data.did || !data.handle || !data.identifier || !data.password || !data.service)

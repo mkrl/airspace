@@ -346,6 +346,76 @@ main h2 {
   margin: 0;
 }
 
+.migration-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+  padding: var(--space-sm);
+  border: 4px dotted oklch(72% 0.12 75);
+  border-radius: var(--radius-sm);
+  background: oklch(98.602% 0.00724 80.568);
+}
+
+.migration-notice p,
+.migration-summary p,
+.migration-complete p {
+  margin: 0;
+  color: var(--color-ink-2);
+  font-size: var(--text-sm);
+}
+
+.migration-workspace {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.migration-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+  padding-bottom: var(--space-sm);
+  border-bottom: var(--rule);
+}
+
+.migration-summary span {
+  display: grid;
+  color: var(--color-ink-2);
+  font-size: var(--text-sm);
+}
+
+.migration-summary strong {
+  color: var(--color-ink);
+  font-size: var(--text-lg);
+}
+
+.migration-record {
+  display: grid;
+  gap: var(--space-md);
+  max-width: 48rem;
+  padding-bottom: var(--space-lg);
+  border-bottom: var(--rule);
+}
+
+.migration-record h2 {
+  margin-bottom: var(--space-3xs);
+}
+
+.removed-fields {
+  margin: var(--space-xs) 0 0;
+  color: oklch(50% 0.16 25);
+  font-size: var(--text-sm);
+}
+
+.migration-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
 .content-grid {
   display: grid;
   min-height: 34rem;

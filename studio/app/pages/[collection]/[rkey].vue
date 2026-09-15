@@ -36,6 +36,7 @@ useSeoMeta({ title: () => `${rkey.value === 'new' ? 'New' : rkey.value} · ${col
       <header class="workspace-header">
         <div><p class="eyebrow">{{ collection.nsid }}</p><h1>{{ collection.name }}</h1><p v-if="collection.description">{{ collection.description }}</p></div>
       </header>
+      <StudioMigrationNotice :collection-name="collectionName" />
       <div class="content-grid">
         <div class="record-list">
           <NuxtLink v-for="item in records" :key="item.rkey" :to="`/${collectionName}/${item.rkey}`">
