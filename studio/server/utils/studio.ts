@@ -60,6 +60,7 @@ export function collectionDescriptions(): StudioCollection[] {
     return []
   const docs = toLexiconJson(model)
   const byNsid = new Map(docs.map(doc => [doc.id, doc.defs]))
+  const collectionNames = new Set(collectionEntries.map(([name]) => name))
   return collectionEntries.map(([name, schema]) => {
     const main = byNsid.get(schema.$type)?.main as { description?: string, record?: StudioField } | undefined
     const record = main?.record
@@ -68,7 +69,13 @@ export function collectionDescriptions(): StudioCollection[] {
       nsid: schema.$type,
       description: main?.description,
       singleton: String(schema.key).startsWith('literal:'),
-      fields: Object.fromEntries(Object.entries(record?.properties ?? {}).map(([key, field]) => [key, resolveField(field, byNsid)])),
+      fields: Object.fromEntries(Object.entries(record?.properties ?? {}).map(([key, field]) => {
+        const resolved = resolveField(field, byNsid)
+        const relation = field.type === 'ref' && field.ref === 'com.atproto.repo.strongRef'
+          ? [key, `${key}s`, key.replace(/s$/, '')].find(candidate => collectionNames.has(candidate))
+          : undefined
+        return [key, relation ? { ...resolved, relation } : resolved]
+      })),
       required: record?.required ?? [],
       nullable: record?.nullable ?? [],
     }
