@@ -26,6 +26,7 @@ useSeoMeta({ title: () => `${collectionName.value} · airspace studio` })
       <header class="workspace-header">
         <div><p class="eyebrow">{{ collection.nsid }}</p><h1>{{ collection.name }}</h1><p v-if="collection.description">{{ collection.description }}</p></div>
       </header>
+      <StudioMigrationNotice :collection-name="collectionName" />
       <div class="content-grid">
         <div class="record-list">
           <NuxtLink v-for="record in records" :key="record.rkey" :to="`/${collectionName}/${record.rkey}`">

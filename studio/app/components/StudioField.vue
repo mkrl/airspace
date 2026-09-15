@@ -27,6 +27,25 @@ const jsonValue = computed({
   },
 })
 
+const datetimeValue = computed(() => {
+  if (props.schema.format !== 'datetime' || typeof props.modelValue !== 'string' || !props.modelValue)
+    return props.modelValue as string | undefined
+  const date = new Date(props.modelValue)
+  if (Number.isNaN(date.getTime()))
+    return ''
+  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000)
+  return local.toISOString().slice(0, 16)
+})
+
+function updateString(event: Event) {
+  const value = (event.target as HTMLInputElement).value
+  if (!value) {
+    emit('update:modelValue', undefined)
+    return
+  }
+  emit('update:modelValue', props.schema.format === 'datetime' ? new Date(value).toISOString() : value)
+}
+
 function updateObject(key: string, value: unknown) {
   const next = { ...((props.modelValue && typeof props.modelValue === 'object') ? props.modelValue : {}) } as Record<string, unknown>
   if (value === undefined || value === '')
@@ -86,7 +105,7 @@ async function upload(event: Event) {
       <option v-for="choice in choices" :key="choice" :value="choice">{{ choice }}</option>
     </select>
     <textarea v-else-if="multiline && schema.type === 'string'" :value="modelValue as string" :required="required" :maxlength="schema.maxGraphemes" rows="9" @input="$emit('update:modelValue', ($event.target as HTMLTextAreaElement).value || undefined)" />
-    <input v-else-if="schema.type === 'string'" :type="schema.format === 'datetime' ? 'datetime-local' : schema.format === 'uri' ? 'url' : 'text'" :value="modelValue as string" :required="required" :maxlength="schema.maxGraphemes" @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value || undefined)">
+    <input v-else-if="schema.type === 'string'" :type="schema.format === 'datetime' ? 'datetime-local' : schema.format === 'uri' ? 'url' : 'text'" :value="datetimeValue" :required="required" :maxlength="schema.maxGraphemes" @input="updateString">
     <input v-else-if="schema.type === 'integer'" type="number" step="1" :value="modelValue as number" :required="required" :min="schema.minimum" :max="schema.maximum" @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value === '' ? undefined : Number(($event.target as HTMLInputElement).value))">
     <template v-else-if="schema.type === 'blob'">
       <input type="file" :accept="schema.accept?.join(',')" :disabled="uploadBusy" @change="upload">

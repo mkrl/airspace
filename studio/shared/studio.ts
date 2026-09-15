@@ -37,6 +37,25 @@ export interface StudioRecord {
   cid: string
   uri: string
   value: Record<string, unknown>
+  removedFields?: string[]
+}
+
+export interface StudioMigrationIssue {
+  path: string
+  message: string
+}
+
+export interface StudioMigrationReport {
+  scanned: number
+  changed: number
+  unchanged: number
+  failed: Record<string, StudioMigrationIssue[]>
+}
+
+export interface StudioMigrationStatus {
+  needed: boolean
+  report: StudioMigrationReport
+  records: StudioRecord[]
 }
 
 export interface StudioSession {

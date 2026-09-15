@@ -3,7 +3,6 @@ import { defineLexicons, field, record } from 'airspace/lexicon'
 export default defineLexicons('dev.example.studio', {
   article: {
     title: field.text({ max: 120 }).describe('The headline shown in article lists.'),
-    summary: field.text({ max: 280 }).optional(),
     body: field.markdown(),
     status: field.enum(['draft', 'review', 'published']),
     featured: field.boolean().optional(),
