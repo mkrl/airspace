@@ -78,6 +78,7 @@ async function remove() {
       v-for="(field, name) in collection.fields"
       :key="name"
       :name="name"
+      :input-name="`${collection.name}.${name}`"
       :schema="field"
       :required="collection.required.includes(name)"
       :model-value="value[name]"
