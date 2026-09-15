@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { StudioCollection, StudioRecord } from '#shared/studio'
+import { clearNewRecordDraft, restoreNewRecordDraft, saveNewRecordDraft } from '~/utils/new-record-draft'
 
 const props = defineProps<{
   collection: StudioCollection
@@ -10,6 +11,14 @@ const value = ref<Record<string, unknown>>(initialValue())
 const busy = ref(false)
 const message = ref('')
 const issues = ref<Record<string, string>>({})
+
+onMounted(() => {
+  if (props.record)
+    return
+  const draft = restoreNewRecordDraft(window.localStorage, props.collection)
+  if (draft)
+    value.value = draft
+})
 
 function initialValue() {
   if (props.record) {
@@ -24,6 +33,8 @@ function updateField(name: string, next: unknown) {
     delete value.value[name]
   else
     value.value[name] = next
+  if (!props.record)
+    saveNewRecordDraft(window.localStorage, props.collection, value.value)
 }
 
 async function save() {
@@ -36,8 +47,10 @@ async function save() {
       method: props.record ? 'PUT' : 'POST',
       body: value.value,
     })
-    if (!props.record)
+    if (!props.record) {
+      clearNewRecordDraft(window.localStorage, props.collection)
       return await navigateTo(`/${props.collection.name}/${result.rkey}`)
+    }
     message.value = 'Record saved.'
   }
   catch (error) {
