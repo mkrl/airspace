@@ -43,3 +43,7 @@ export interface StudioSession {
   configured: boolean
   account: { did: string, handle: string, service: string } | null
 }
+
+export interface StudioState extends StudioSession {
+  collections: StudioCollection[]
+}
