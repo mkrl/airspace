@@ -35,6 +35,7 @@ async function setup() {
     identity: { did: account.did, service: pds.service },
     collections: { projects, categories, current, photos, notes, bookmarks },
     session: account.session,
+    allowPrivateNetwork: true,
   })
   const readOnly = createAirspace({ identity: { did: account.did, service: pds.service }, collections: { projects } })
   return { account, airspace, readOnly }
@@ -98,7 +99,7 @@ describe('createAirspace', () => {
 
   it('resolves a handle lazily and retries after a failed resolution', async () => {
     const account = await pds.account()
-    const airspace = createAirspace({ identity: account.handle, collections: { projects } })
+    const airspace = createAirspace({ identity: account.handle, collections: { projects }, allowPrivateNetwork: true })
     vi.stubGlobal('fetch', () => Promise.reject(new Error('offline')))
     await expect(airspace.projects.list()).rejects.toThrow()
     vi.unstubAllGlobals()
@@ -450,6 +451,32 @@ describe('resolve', () => {
     expect(hosts.some(host => host.includes('plc.directory') || host.includes('bsky.app'))).toBe(false)
   })
 
+  it('refuses to follow a ref into a private host, so record content cannot steer a request inward', async () => {
+    const other = await pds.account()
+    const theirs = createAirspace({ identity: { did: other.did, service: pds.service }, collections: { notes, bookmarks }, session: other.session })
+    await theirs.bookmarks.create({ subject: 'at://did:web:evil.example.com/dev.example.note/abc', label: 'trap' })
+
+    const hosts: string[] = []
+    const real = fetch
+    vi.stubGlobal('fetch', ((input, init) => {
+      const url = new URL(typeof input === 'string' ? input : input instanceof URL ? input.href : input.url)
+      hosts.push(url.hostname)
+      if (url.href === 'https://evil.example.com/.well-known/did.json')
+        return Promise.resolve(Response.json({ id: 'did:web:evil.example.com', service: [{ id: '#atproto_pds', type: 'AtprotoPersonalDataServer', serviceEndpoint: 'http://169.254.169.254' }] }))
+      if (url.pathname === '/xrpc/com.atproto.repo.getRecord')
+        return Promise.resolve(Response.json({ error: 'InvalidRequest', message: 'Could not find repo: did:web:evil.example.com' }, { status: 400 }))
+      return real(input, init)
+    }) as typeof fetch)
+
+    await expect(theirs.resolve('at://did:web:evil.example.com/dev.example.note/abc')).rejects.toThrow(/only https/)
+    await theirs.bookmarks.list({ with: ['subject'] })
+    await expect(theirs.resolve('at://did:web:evil.localhost/dev.example.note/abc')).rejects.toThrow(/malformed/)
+    await expect(theirs.resolve('at://did:web:127.0.0.1%3A8443/dev.example.note/abc')).rejects.toThrow(/malformed/)
+    expect(hosts).toContain('evil.example.com')
+    expect(hosts).not.toContain('169.254.169.254')
+    expect(hosts).not.toContain('evil.localhost')
+  })
+
   it('falls back to the directory for a repo this PDS does not host', async () => {
     const { airspace } = await setup()
     const other = await startTestPds()
@@ -585,6 +612,16 @@ describe('blobs', () => {
     expect(await airspace.blobs.image(uploaded.blob)).toEqual({ url, alt: '', width: undefined, height: undefined })
   })
 
+  it('returns only an http(s) source for an image def carrying a uri', async () => {
+    const { airspace } = await setup()
+    expect(await airspace.blobs.image({ uri: 'https://cdn.example.com/a.png', alt: 'ok' })).toEqual({ url: 'https://cdn.example.com/a.png', alt: 'ok', width: undefined, height: undefined })
+
+    expect(await airspace.blobs.image({ uri: 'javascript:alert(document.cookie)' })).toBeNull()
+    expect(await airspace.blobs.image({ uri: 'data:text/html,<script>alert(1)</script>' })).toBeNull()
+    expect(await airspace.blobs.image({ uri: 'file:///etc/passwd' })).toBeNull()
+    expect(await airspace.blobs.image({ uri: '/relative.png' })).toBeNull()
+  })
+
   it('takes the mime type from a Blob and skips dimensions for non-images', async () => {
     const { airspace } = await setup()
     const uploaded = await airspace.blobs.upload(new Blob(['hello'], { type: 'text/plain' }))
@@ -601,6 +638,12 @@ describe('blobs', () => {
 })
 
 describe('cache', () => {
+  it('refuses persistent storage without a ttl', async () => {
+    const account = await pds.account()
+    const storage = { getItem: async () => null, setItem: async () => {}, removeItem: async () => {}, getKeys: async () => [] }
+    expect(() => createAirspace({ identity: { did: account.did, service: pds.service }, collections: { categories }, cache: { ttl: 0, storage } })).toThrow(/ttl above 0/)
+  })
+
   it('shares in-flight reads, reuses them within the ttl, and drops them on write', async () => {
     const account = await pds.account()
     const airspace = createAirspace({
