@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { StudioField } from '#shared/studio'
+import type { StudioField, StudioRecord } from '#shared/studio'
 
 defineOptions({ name: 'StudioField' })
 
@@ -14,9 +14,21 @@ const props = defineProps<{
 const emit = defineEmits<{ 'update:modelValue': [value: unknown] }>()
 const uploadBusy = ref(false)
 const uploadError = ref('')
+const relationRecords = ref<StudioRecord[]>([])
+const relationBusy = ref(false)
+const relationError = ref('')
 
 const choices = computed(() => props.schema.enum ?? props.schema.knownValues)
 const multiline = computed(() => props.schema.description === 'Markdown.' || (props.schema.maxGraphemes ?? 0) > 1000)
+const relationValue = computed(() => {
+  if (typeof props.modelValue === 'string')
+    return props.modelValue
+  if (props.modelValue && typeof props.modelValue === 'object') {
+    const uri = (props.modelValue as Record<string, unknown>).uri
+    return typeof uri === 'string' ? uri : ''
+  }
+  return ''
+})
 const jsonValue = computed({
   get: () => props.modelValue === undefined ? '' : JSON.stringify(props.modelValue, null, 2),
   set: (value: string) => {
@@ -54,6 +66,36 @@ function updateObject(key: string, value: unknown) {
     next[key] = value
   emit('update:modelValue', next)
 }
+
+function relationLabel(record: StudioRecord) {
+  const label = ['name', 'title', 'displayName', 'label']
+    .map(key => record.value[key])
+    .find(value => typeof value === 'string') as string | undefined
+  return label ? `${label} (${record.rkey})` : record.rkey
+}
+
+function updateRelation(event: Event) {
+  const uri = (event.target as HTMLSelectElement).value
+  const record = relationRecords.value.find(item => item.uri === uri)
+  emit('update:modelValue', record ? { uri: record.uri, cid: record.cid } : undefined)
+}
+
+watch(() => props.schema.relation, async (relation) => {
+  relationRecords.value = []
+  relationError.value = ''
+  if (!relation)
+    return
+  relationBusy.value = true
+  try {
+    relationRecords.value = await $fetch<StudioRecord[]>(`/api/studio/${relation}/records`)
+  }
+  catch (error) {
+    relationError.value = (error as { data?: { message?: string } }).data?.message ?? 'could not load related records'
+  }
+  finally {
+    relationBusy.value = false
+  }
+}, { immediate: true })
 
 async function upload(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0]
@@ -104,6 +146,10 @@ async function upload(event: Event) {
       <option v-if="!required" value="">Not set</option>
       <option v-for="choice in choices" :key="choice" :value="choice">{{ choice }}</option>
     </select>
+    <select v-else-if="schema.relation" :value="relationValue" :required="required" :disabled="relationBusy" @change="updateRelation">
+      <option value="">{{ relationBusy ? 'Loading…' : required ? 'Select a record' : 'Not set' }}</option>
+      <option v-for="record in relationRecords" :key="record.uri" :value="record.uri">{{ relationLabel(record) }}</option>
+    </select>
     <textarea v-else-if="multiline && schema.type === 'string'" :value="modelValue as string" :required="required" :maxlength="schema.maxGraphemes" rows="9" @input="$emit('update:modelValue', ($event.target as HTMLTextAreaElement).value || undefined)" />
     <input v-else-if="schema.type === 'string'" :type="schema.format === 'datetime' ? 'datetime-local' : schema.format === 'uri' ? 'url' : 'text'" :value="datetimeValue" :required="required" :maxlength="schema.maxGraphemes" @input="updateString">
     <input v-else-if="schema.type === 'integer'" type="number" step="1" :value="modelValue as number" :required="required" :min="schema.minimum" :max="schema.maximum" @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value === '' ? undefined : Number(($event.target as HTMLInputElement).value))">
@@ -113,6 +159,6 @@ async function upload(event: Event) {
       <button v-if="modelValue" class="inline-action" type="button" @click="$emit('update:modelValue', undefined)">Remove file</button>
     </template>
     <textarea v-else v-model="jsonValue" rows="6" spellcheck="false" placeholder="JSON value" />
-    <small v-if="issue || uploadError" class="field-error">{{ issue || uploadError }}</small>
+    <small v-if="issue || uploadError || relationError" class="field-error">{{ issue || uploadError || relationError }}</small>
   </label>
 </template>
