@@ -16,11 +16,20 @@ if (!collection.value)
   throw createError({ statusCode: 404, statusMessage: `Unknown collection: ${collectionName.value}` })
 
 const requestFetch = useRequestFetch()
-const records = await requestFetch<StudioRecord[]>(`/api/studio/${collectionName.value}/records`)
 const record = ref<StudioRecord | null>(null)
-if (rkey.value !== 'new')
-  record.value = await requestFetch<StudioRecord>(`/api/studio/${collectionName.value}/records/${rkey.value}`)
-else if (collection.value.singleton) {
+if (rkey.value !== 'new') {
+  try {
+    record.value = await requestFetch<StudioRecord>(`/api/studio/${collectionName.value}/records/${rkey.value}`)
+  }
+  catch (error) {
+    const response = error as { status?: number, statusCode?: number, response?: { status?: number } }
+    if ((response.statusCode ?? response.status ?? response.response?.status) === 404)
+      throw createError({ statusCode: 404, statusMessage: `Record not found: ${collectionName.value}/${rkey.value}` })
+    throw error
+  }
+}
+const records = await requestFetch<StudioRecord[]>(`/api/studio/${collectionName.value}/records`)
+if (rkey.value === 'new' && collection.value.singleton) {
   if (records[0])
     await navigateTo(`/${collectionName.value}/${records[0].rkey}`)
 }

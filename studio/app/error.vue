@@ -3,8 +3,9 @@ import type { NuxtError } from 'nuxt/app'
 
 const props = defineProps<{ error: NuxtError }>()
 
-const missing = props.error.statusCode === 404
-const title = computed(() => `${props.error.statusCode || 500} · airspace studio`)
+const statusCode = computed(() => props.error.statusCode || (props.error as NuxtError & { status?: number }).status || 500)
+const missing = computed(() => statusCode.value === 404)
+const title = computed(() => `${statusCode.value} · airspace studio`)
 
 useSeoMeta({
   title,
@@ -17,7 +18,7 @@ useSeoMeta({
   <SiteShell>
     <div class="error">
     <p class="rubric">
-      {{ error.statusCode || 500 }}
+      {{ statusCode }}
     </p>
     <h1>{{ missing ? 'that page does not exist.' : 'something went wrong.' }}</h1>
 
