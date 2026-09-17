@@ -16,6 +16,7 @@ export interface StudioField {
   maxSize?: number
   ref?: string
   relation?: string
+  relationValue?: 'strongRef' | 'uri'
   refs?: string[]
   items?: StudioField
   properties?: Record<string, StudioField>

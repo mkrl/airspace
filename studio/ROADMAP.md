@@ -4,9 +4,9 @@ Studio already supports schema-driven CRUD, validation, singletons, manual migra
 
 ## configuration foundation
 
-Studio currently consumes `lexicons.ts`. Lexicons describe record shapes, but not collection configuration such as sorting, `belongsTo` and `hasMany` relations, plugins, spaces, or publishing behavior.
+Studio currently consumes `lexicons.ts`. Lexicons describe record shapes, but not collection configuration such as sorting, `belongsTo` and `hasMany` relations, or plugins.
 
-Add an optional `studio.config.ts` entry point that exports configured collections, spaces, and plugins. Keep `lexicons.ts` as the zero-configuration path. Without this additional configuration, advanced features must rely on naming heuristics.
+Studio now accepts an optional `studio.config.ts` entry point that exports configured collections and plugins. `lexicons.ts` remains the zero-configuration path. Explicit relation definitions replace naming heuristics when a configuration is present.
 
 ## P0: core CMS
 
@@ -44,18 +44,6 @@ OAuth is high value but deployment-heavy: it requires a public base URL, client 
 
 ## P1: editorial workflows
 
-### spaces and drafts
-
-- Detect whether the connected PDS supports spaces and degrade gracefully when it does not.
-- Switch collection views between public records and drafts.
-- Create and edit drafts with the same generated forms used for public records.
-- Show publication state and public/draft divergence.
-- Publish drafts with conflict protection and an optional transform preview.
-- Add space configuration and member administration after the draft/publish workflow is stable.
-- Warn that blobs uploaded for space records are currently publicly retrievable from supporting PDSes.
-
-Spaces remain experimental and are unsupported by most hosted PDSes, including `bsky.social`.
-
 ### bulk operations
 
 - Add record selection for bulk delete and update.
@@ -71,8 +59,6 @@ Migrations already write in batches internally. Batch UI is primarily useful for
 - Show a refresh notice when records change elsewhere.
 - Avoid replacing a form with unsaved local edits.
 - Combine live notifications with CID-based conflict protection.
-
-Private records in spaces are not broadcast through Jetstream.
 
 ### richer relations
 
@@ -132,13 +118,16 @@ The following Airspace features should remain in code, configuration, or the CLI
 
 Studio may display useful diagnostics from these systems, but should not attempt to configure them generically.
 
+## out of scope
+
+Permissioned spaces and draft publishing are intentionally not included in Studio while the protocol is experimental and unavailable on most PDSes.
+
 ## implementation order
 
-1. Add the optional Studio configuration entry point.
-2. Add conflict-safe updates and deletes.
-3. Add cursor pagination and collection navigation tools.
-4. Add structured list, union, and relation editors.
-5. Add OAuth and scope recovery.
-6. Add the space draft and publish workflow.
-7. Add bulk operations and live refresh notifications.
-8. Add richer media, Markdown, lexicon, and public browsing tools.
+1. [x] Add the optional Studio configuration entry point.
+2. [ ] Add conflict-safe updates and deletes.
+3. [ ] Add cursor pagination and collection navigation tools.
+4. [ ] Add structured list, union, and relation editors.
+5. [ ] Add OAuth and scope recovery.
+6. [ ] Add bulk operations and live refresh notifications.
+7. [ ] Add richer media, Markdown, lexicon, and public browsing tools.
