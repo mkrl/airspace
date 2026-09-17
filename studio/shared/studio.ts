@@ -42,6 +42,14 @@ export interface StudioRecord {
   removedFields?: string[]
 }
 
+export interface StudioRecordPage {
+  records: StudioRecord[]
+  cursor?: string
+  mode: 'browse' | 'query'
+  offset?: number
+  hasMore?: boolean
+}
+
 export interface StudioMigrationIssue {
   path: string
   message: string

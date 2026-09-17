@@ -42,7 +42,7 @@ watch(() => props.schema.relation, async (relation) => {
 
   busy.value = true
   try {
-    records.value = await $fetch<StudioRecord[]>(`/api/studio/${relation}/records`)
+    records.value = await $fetch<StudioRecord[]>(`/api/studio/${relation}/records?all=true`)
   }
   catch (fetchError) {
     error.value = (fetchError as { data?: { message?: string } }).data?.message ?? 'could not load related records'
