@@ -12,10 +12,10 @@ Studio now accepts an optional `studio.config.ts` entry point that exports confi
 
 ### concurrency protection
 
-- Send the loaded record CID as `ifMatch` on update and delete.
-- Handle `ConflictError` with reload and comparison actions.
-- Enable `ifChanged` by default on writes rather than exposing it as a form setting.
-- Prevent one editor from silently overwriting another.
+- [x] Send the loaded record CID as `ifMatch` on update and delete.
+- [x] Handle `ConflictError` without discarding local edits and offer an explicit action to load the latest record.
+- [x] Enable `ifChanged` by default on writes rather than exposing it as a form setting.
+- [x] Prevent one editor from silently overwriting another.
 
 ### scalable record navigation
 
@@ -125,7 +125,7 @@ Permissioned spaces and draft publishing are intentionally not included in Studi
 ## implementation order
 
 1. [x] Add the optional Studio configuration entry point.
-2. [ ] Add conflict-safe updates and deletes.
+2. [x] Add conflict-safe updates and deletes.
 3. [ ] Add cursor pagination and collection navigation tools.
 4. [ ] Add structured list, union, and relation editors.
 5. [ ] Add OAuth and scope recovery.

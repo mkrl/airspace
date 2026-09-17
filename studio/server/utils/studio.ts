@@ -2,7 +2,7 @@ import type { AnyCollection, DidString, Plugin, Relation } from 'airspace'
 import type { RequestEvent } from 'nuxt/server'
 import type { StudioCollection, StudioField } from '#shared/studio'
 import type { StudioConfig } from '../../config.ts'
-import { createAirspace, defineCollection, passwordSession } from 'airspace'
+import { ConflictError, createAirspace, defineCollection, passwordSession } from 'airspace'
 import { toLexiconJson } from 'airspace/lexicon'
 import { useSession } from 'nitro/h3'
 import { useRuntimeConfig } from 'nitro/runtime-config'
@@ -103,6 +103,26 @@ export function requireCollection(name: string) {
   if (!collection)
     throw createError({ statusCode: 404, message: `unknown collection: ${name}` })
   return collection
+}
+
+export function rethrowWriteConflict(error: unknown): never {
+  if (error instanceof ConflictError) {
+    throw createError({
+      statusCode: 409,
+      message: 'record changed since it was loaded',
+      data: { code: 'record_conflict', collection: error.collection, rkey: error.rkey, cid: error.cid },
+    })
+  }
+  throw error
+}
+
+export function isMissingRepository(error: unknown): boolean {
+  if (!error || typeof error !== 'object')
+    return false
+  const response = error as { error?: string, message?: string }
+  return response.error === 'RepoNotFound'
+    || response.error === 'UpstreamFailure'
+    || (response.error === 'InvalidRequest' && /could not find repo/i.test(response.message ?? ''))
 }
 
 function normalizeFields(value: Record<string, unknown>, fields: Record<string, StudioField>, prefix = ''): { value: Record<string, unknown>, removed: string[] } {
