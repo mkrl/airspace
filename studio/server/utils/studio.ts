@@ -1,11 +1,13 @@
-import type { AnyCollection, DidString } from 'airspace'
+import type { AnyCollection, DidString, Plugin, Relation } from 'airspace'
 import type { RequestEvent } from 'nuxt/server'
 import type { StudioCollection, StudioField } from '#shared/studio'
+import type { StudioConfig } from '../../config.ts'
 import { createAirspace, defineCollection, passwordSession } from 'airspace'
 import { toLexiconJson } from 'airspace/lexicon'
 import { useSession } from 'nitro/h3'
 import { useRuntimeConfig } from 'nitro/runtime-config'
 import { createError, toNuxtRequestEvent } from 'nuxt/server'
+import importedConfig from '#studio-config'
 import lexicons from '#studio-lexicons'
 
 interface Credentials {
@@ -25,7 +27,11 @@ function cookie() {
 }
 
 export const studioSession = (event: RequestEvent) => useSession<Partial<Credentials>>(toNuxtRequestEvent(event), cookie())
-export const studioConfigured = () => lexicons !== null
+
+const config = importedConfig as StudioConfig | null
+const model = (config?.lexicons ?? lexicons) as Record<string, unknown> | null
+
+export const studioConfigured = () => model !== null
 
 function recordEntries(model: Record<string, unknown>) {
   const entries: Array<[string, any]> = []
@@ -43,9 +49,11 @@ function recordEntries(model: Record<string, unknown>) {
   return entries
 }
 
-const model = lexicons as Record<string, unknown> | null
 const collectionEntries = model ? recordEntries(model) : []
-const collections = Object.fromEntries(collectionEntries.map(([name, schema]) => [name, defineCollection(schema)])) as Record<string, AnyCollection>
+const inferredCollections = Object.fromEntries(collectionEntries.map(([name, schema]) => [name, defineCollection(schema)])) as Record<string, AnyCollection>
+const collections = config?.collections ?? inferredCollections
+const plugins = config?.plugins ?? []
+const collectionNames = new Map(Object.entries(collections).map(([name, collection]) => [collection, name]))
 
 function resolveField(field: StudioField, docs: Map<string, Record<string, unknown>>): StudioField {
   if (field.type !== 'ref' || !field.ref)
@@ -60,8 +68,8 @@ export function collectionDescriptions(): StudioCollection[] {
     return []
   const docs = toLexiconJson(model)
   const byNsid = new Map(docs.map(doc => [doc.id, doc.defs]))
-  const collectionNames = new Set(collectionEntries.map(([name]) => name))
-  return collectionEntries.map(([name, schema]) => {
+  return Object.entries(collections).map(([name, collection]) => {
+    const schema = collection.schema
     const main = byNsid.get(schema.$type)?.main as { description?: string, record?: StudioField } | undefined
     const record = main?.record
     return {
@@ -71,10 +79,18 @@ export function collectionDescriptions(): StudioCollection[] {
       singleton: String(schema.key).startsWith('literal:'),
       fields: Object.fromEntries(Object.entries(record?.properties ?? {}).map(([key, field]) => {
         const resolved = resolveField(field, byNsid)
-        const relation = field.type === 'ref' && field.ref === 'com.atproto.repo.strongRef'
-          ? [key, `${key}s`, key.replace(/s$/, '')].find(candidate => collectionNames.has(candidate))
+        const configuredRelation = Object.values(collection.relations as Record<string, Relation>).find(relation => relation.field === key)
+        const relation = configuredRelation && collectionNames.get(configuredRelation.target())
+        if (relation && configuredRelation.kind === 'hasMany' && resolved.type === 'array' && resolved.items)
+          return [key, { ...resolved, items: { ...resolved.items, relation, relationValue: resolved.items.type === 'string' ? 'uri' : 'strongRef' } }]
+        if (relation)
+          return [key, { ...resolved, relation, relationValue: resolved.type === 'string' && resolved.format === 'at-uri' ? 'uri' : 'strongRef' }]
+        if (config)
+          return [key, resolved]
+        const inferredRelation = field.type === 'ref' && field.ref === 'com.atproto.repo.strongRef'
+          ? [key, `${key}s`, key.replace(/s$/, '')].find(candidate => collections[candidate])
           : undefined
-        return [key, relation ? { ...resolved, relation } : resolved]
+        return [key, inferredRelation ? { ...resolved, relation: inferredRelation } : resolved]
       })),
       required: record?.required ?? [],
       nullable: record?.nullable ?? [],
@@ -144,6 +160,8 @@ export async function useStudio(event: RequestEvent) {
   return createAirspace({
     identity: { did: credentials.did as DidString, service: credentials.service },
     collections,
+    plugins: plugins as readonly Plugin<any>[],
     session,
-  }) as any
+    allowPrivateNetwork: config?.allowPrivateNetwork,
+  } as any) as any
 }

@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 const hasLexicons = existsSync(resolve(import.meta.dirname, 'lexicons.ts'))
+const hasStudioConfig = existsSync(resolve(import.meta.dirname, 'studio.config.ts'))
 
 export default defineNuxtConfig({
   modules: ['@nuxt/fonts'],
@@ -35,9 +36,10 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     studioSessionPassword: 'airspace-studio-local-development-key',
-    public: { hasLexicons },
+    public: { hasLexicons: hasLexicons || hasStudioConfig },
   },
   alias: {
+    '#studio-config': resolve(import.meta.dirname, hasStudioConfig ? 'studio.config.ts' : 'shared/empty-config.ts'),
     '#studio-lexicons': resolve(import.meta.dirname, hasLexicons ? 'lexicons.ts' : 'shared/empty-lexicons.ts'),
   },
   nitro: {

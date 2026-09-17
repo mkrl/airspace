@@ -29,7 +29,9 @@ function recordLabel(record: StudioRecord) {
 function updateValue(event: Event) {
   const uri = (event.target as HTMLSelectElement).value
   const record = records.value.find(item => item.uri === uri)
-  emit('update:modelValue', record ? { uri: record.uri, cid: record.cid } : undefined)
+  emit('update:modelValue', record
+    ? props.schema.relationValue === 'uri' ? record.uri : { uri: record.uri, cid: record.cid }
+    : undefined)
 }
 
 watch(() => props.schema.relation, async (relation) => {

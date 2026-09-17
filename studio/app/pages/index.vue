@@ -40,7 +40,7 @@ useSeoMeta({ title: 'airspace studio', description: 'Edit typed content in your 
   <section v-if="studio && !studio.configured" class="setup">
     <span class="setup-mark" aria-hidden="true">{ }</span>
     <h1>Add your content model</h1>
-    <p>Studio looks for <code>studio/lexicons.ts</code>. Export the same airspace lexicons your application uses, then restart the development server.</p>
+    <p>Studio looks for <code>studio/lexicons.ts</code> or <code>studio/studio.config.ts</code>. Export the same Airspace model your application uses, then restart the development server.</p>
     <pre><code>import { defineLexicons, field } from 'airspace/lexicon'
 
 export default defineLexicons('dev.example', {
@@ -50,7 +50,7 @@ export default defineLexicons('dev.example', {
     published: field.boolean().optional(),
   },
 })</code></pre>
-    <p class="setup-note">Already have a model elsewhere? Re-export it: <code>export { default } from '../src/lexicons.ts'</code></p>
+    <p class="setup-note">Use <code>studio.config.ts</code> when the model has configured relations or plugins.</p>
   </section>
 
   <section v-else-if="studio && !studio.account" class="signin">
