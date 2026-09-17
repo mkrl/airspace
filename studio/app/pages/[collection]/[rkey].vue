@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { StudioRecord, StudioState } from '#shared/studio'
 
-definePageMeta({ key: route => route.fullPath })
+definePageMeta({ key: route => route.path })
 
 const route = useRoute()
 const collectionName = computed(() => String(route.params.collection))
@@ -28,13 +28,11 @@ if (rkey.value !== 'new') {
     throw error
   }
 }
-const records = await requestFetch<StudioRecord[]>(`/api/studio/${collectionName.value}/records`)
 if (rkey.value === 'new' && collection.value.singleton) {
-  if (records[0])
-    await navigateTo(`/${collectionName.value}/${records[0].rkey}`)
+  const page = await requestFetch<{ records: StudioRecord[] }>(`/api/studio/${collectionName.value}/records?page=true&limit=1`)
+  if (page.records[0])
+    await navigateTo(`/${collectionName.value}/${page.records[0].rkey}`)
 }
-
-const titleField = (item: StudioRecord) => ['title', 'name', 'displayName', 'label'].map(key => item.value[key]).find(item => typeof item === 'string') as string | undefined
 
 useSeoMeta({ title: () => `${rkey.value === 'new' ? 'New' : rkey.value} · ${collectionName.value} · airspace studio` })
 </script>
@@ -44,15 +42,11 @@ useSeoMeta({ title: () => `${rkey.value === 'new' ? 'New' : rkey.value} · ${col
     <section class="workspace">
       <header class="workspace-header">
         <div><p class="eyebrow">{{ collection.nsid }}</p><h1>{{ collection.name }}</h1><p v-if="collection.description">{{ collection.description }}</p></div>
+        <StudioCreateRecordButton :collection-name="collectionName" />
       </header>
       <StudioMigrationNotice :collection-name="collectionName" />
       <div class="content-grid">
-        <div class="record-list">
-          <NuxtLink v-for="item in records" :key="item.rkey" :to="`/${collectionName}/${item.rkey}`">
-            <strong>{{ titleField(item) ?? item.rkey }}</strong><small>{{ item.rkey }}</small>
-          </NuxtLink>
-          <p v-if="!records.length" class="empty">No records yet.</p>
-        </div>
+        <StudioRecordList :collection="collection" :selected-rkey="rkey" />
         <StudioRecordEditor :key="rkey" :collection="collection" :record="record" />
       </div>
     </section>

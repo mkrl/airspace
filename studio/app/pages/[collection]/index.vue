@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { StudioRecord, StudioState } from '#shared/studio'
+import type { StudioState } from '#shared/studio'
 
-definePageMeta({ key: route => route.fullPath })
+definePageMeta({ key: route => route.path })
 
 const route = useRoute()
 const collectionName = computed(() => String(route.params.collection))
@@ -14,9 +14,6 @@ const collection = computed(() => studio.value?.collections.find(item => item.na
 if (!collection.value)
   throw createError({ statusCode: 404, statusMessage: `Unknown collection: ${collectionName.value}` })
 
-const { data: records } = await useFetch<StudioRecord[]>(() => `/api/studio/${collectionName.value}/records`, { default: () => [] })
-const titleField = (record: StudioRecord) => ['title', 'name', 'displayName', 'label'].map(key => record.value[key]).find(item => typeof item === 'string') as string | undefined
-
 useSeoMeta({ title: () => `${collectionName.value} · airspace studio` })
 </script>
 
@@ -25,15 +22,11 @@ useSeoMeta({ title: () => `${collectionName.value} · airspace studio` })
     <section class="workspace">
       <header class="workspace-header">
         <div><p class="eyebrow">{{ collection.nsid }}</p><h1>{{ collection.name }}</h1><p v-if="collection.description">{{ collection.description }}</p></div>
+        <StudioCreateRecordButton :collection-name="collectionName" />
       </header>
       <StudioMigrationNotice :collection-name="collectionName" />
       <div class="content-grid">
-        <div class="record-list">
-          <NuxtLink v-for="record in records" :key="record.rkey" :to="`/${collectionName}/${record.rkey}`">
-            <strong>{{ titleField(record) ?? record.rkey }}</strong><small>{{ record.rkey }}</small>
-          </NuxtLink>
-          <p v-if="!records.length" class="empty">No records yet.</p>
-        </div>
+        <StudioRecordList :collection="collection" />
         <StudioRecordEditor :collection="collection" :record="null" />
       </div>
     </section>

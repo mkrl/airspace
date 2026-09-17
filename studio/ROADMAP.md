@@ -19,10 +19,10 @@ Studio now accepts an optional `studio.config.ts` entry point that exports confi
 
 ### scalable record navigation
 
-- Replace the fixed 100-record listing with cursor-based `page({ limit, cursor, reverse })` calls.
-- Add previous and next controls and preserve cursor state in the URL.
-- Add search, field filters, configurable sorting, and reverse order as separate collection tools.
-- Treat `list()` filtering and sorting as in-memory operations; do not imply that arbitrary filters map to PDS cursor pagination.
+- [x] Replace the fixed 100-record listing with cursor-based `page({ limit, cursor, reverse })` calls.
+- [x] Add previous and next controls and preserve cursor state in the URL.
+- [x] Add search, field filters, configurable sorting, and reverse order as separate collection tools.
+- [x] Treat `list()` filtering and sorting as in-memory operations; do not imply that arbitrary filters map to PDS cursor pagination.
 
 ### complete schema controls
 
@@ -126,7 +126,7 @@ Permissioned spaces and draft publishing are intentionally not included in Studi
 
 1. [x] Add the optional Studio configuration entry point.
 2. [x] Add conflict-safe updates and deletes.
-3. [ ] Add cursor pagination and collection navigation tools.
+3. [x] Add cursor pagination and collection navigation tools.
 4. [ ] Add structured list, union, and relation editors.
 5. [ ] Add OAuth and scope recovery.
 6. [ ] Add bulk operations and live refresh notifications.
