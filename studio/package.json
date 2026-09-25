@@ -10,7 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@nuxt/fonts": "https://pkg.pr.new/@nuxt/fonts@35924e7",
+    "@nuxt/fonts": "0.14.0",
     "airspace": "workspace:*",
     "nitro": "3.0.260903-beta",
     "nuxt": "npm:nuxt-nightly@5x",

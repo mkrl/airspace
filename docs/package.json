@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@comark/vue": "^0.7.0",
-    "@nuxt/fonts": "https://pkg.pr.new/@nuxt/fonts@35924e7",
+    "@nuxt/fonts": "0.14.0",
     "airspace": "workspace:*",
     "comark": "^0.7.0",
     "nitro": "3.0.260903-beta",
