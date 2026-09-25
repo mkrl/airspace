@@ -366,9 +366,9 @@ main h2 {
   gap: var(--space-sm);
   margin-top: var(--space-sm);
   padding: var(--space-sm);
-  border: 4px dotted oklch(72% 0.12 75);
+  border: 4px dotted var(--color-notice);
   border-radius: var(--radius-sm);
-  background: oklch(98.602% 0.00724 80.568);
+  background: var(--color-notice-bg);
 }
 
 .migration-notice p,
