@@ -65,7 +65,7 @@ const currentCursor = computed(() => queryValue('cursor'))
 const currentOffset = computed(() => Number(queryValue('offset') || 0))
 
 function titleField(record: StudioRecordPage['records'][number]) {
-  return ['title', 'name', 'displayName', 'label']
+  return ['title', 'name', 'displayName', 'label', 'text']
     .map(key => record.value[key])
     .find(value => typeof value === 'string') as string | undefined
 }

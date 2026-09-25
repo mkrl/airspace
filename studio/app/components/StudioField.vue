@@ -11,6 +11,7 @@ import MultilineField from './fields/MultilineField.vue'
 import ObjectField from './fields/ObjectField.vue'
 import RelationField from './fields/RelationField.vue'
 import StringField from './fields/StringField.vue'
+import UnionField from './fields/UnionField.vue'
 
 defineOptions({ name: 'StudioField' })
 
@@ -26,8 +27,12 @@ const props = defineProps<{
 const emit = defineEmits<{ 'update:modelValue': [value: unknown] }>()
 
 const fieldComponent = computed<Component>(() => {
+  if (props.schema.type === 'array' && props.schema.items?.relation)
+    return RelationField
   if (props.schema.type === 'array' && props.schema.items)
     return ListField
+  if (props.schema.type === 'union' && props.schema.refs)
+    return UnionField
   if (props.schema.type === 'object' && props.schema.properties)
     return ObjectField
   if (props.schema.type === 'boolean')

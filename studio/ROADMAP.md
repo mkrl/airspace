@@ -26,10 +26,10 @@ Studio now accepts an optional `studio.config.ts` entry point that exports confi
 
 ### complete schema controls
 
-- Add structured list editors with add, remove, and reorder controls.
-- Add `hasMany` multi-select controls.
-- Add a union member selector and recursive editor.
-- Preserve raw JSON for open unions, external references, unknown types, and unsupported shapes.
+- [x] Add structured list editors with add, remove, and reorder controls.
+- [x] Add `hasMany` multi-select controls.
+- [x] Add a union member selector and recursive editor.
+- [x] Preserve raw JSON for open unions, external references, unknown types, and unsupported shapes.
 - Add suitable editors for AT URIs, language codes, CIDs, and other known string formats.
 
 ### OAuth
@@ -127,7 +127,7 @@ Permissioned spaces and draft publishing are intentionally not included in Studi
 1. [x] Add the optional Studio configuration entry point.
 2. [x] Add conflict-safe updates and deletes.
 3. [x] Add cursor pagination and collection navigation tools.
-4. [ ] Add structured list, union, and relation editors.
+4. [x] Add structured list, union, and relation editors.
 5. [ ] Add OAuth and scope recovery.
 6. [ ] Add bulk operations and live refresh notifications.
 7. [ ] Add richer media, Markdown, lexicon, and public browsing tools.
