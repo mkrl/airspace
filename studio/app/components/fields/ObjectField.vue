@@ -4,6 +4,9 @@ import type { StudioFieldProps } from './types'
 const props = defineProps<StudioFieldProps>()
 const emit = defineEmits<{ 'update:modelValue': [value: unknown] }>()
 
+const hasValue = computed(() => !!props.modelValue && typeof props.modelValue === 'object' && Object.keys(props.modelValue as Record<string, unknown>).length > 0)
+const childRequired = computed(() => props.required || hasValue.value)
+
 function updateProperty(key: string, value: unknown) {
   const currentValue = props.modelValue && typeof props.modelValue === 'object' ? props.modelValue : {}
   const nextValue = { ...currentValue } as Record<string, unknown>
@@ -12,8 +15,7 @@ function updateProperty(key: string, value: unknown) {
     delete nextValue[key]
   else
     nextValue[key] = value
-
-  emit('update:modelValue', nextValue)
+  emit('update:modelValue', Object.keys(nextValue).length || props.required ? nextValue : undefined)
 }
 </script>
 
@@ -27,7 +29,7 @@ function updateProperty(key: string, value: unknown) {
       :name="key"
       :input-name="`${inputName}.${key}`"
       :schema="child"
-      :required="schema.required?.includes(key)"
+      :required="childRequired && schema.required?.includes(key)"
       :model-value="(modelValue as Record<string, unknown> | undefined)?.[key]"
       @update:model-value="updateProperty(key, $event)"
     />
