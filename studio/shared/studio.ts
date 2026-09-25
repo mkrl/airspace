@@ -6,6 +6,7 @@ export interface StudioField {
   knownValues?: Array<string | number>
   const?: string | number | boolean
   default?: unknown
+  closed?: boolean
   minimum?: number
   maximum?: number
   minLength?: number
@@ -18,6 +19,7 @@ export interface StudioField {
   relation?: string
   relationValue?: 'strongRef' | 'uri'
   refs?: string[]
+  variants?: Record<string, StudioField>
   items?: StudioField
   properties?: Record<string, StudioField>
   required?: string[]

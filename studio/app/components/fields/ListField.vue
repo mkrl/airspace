@@ -42,6 +42,16 @@ function removeItem(index: number) {
     return
   emit('update:modelValue', values.value.filter((_, itemIndex) => itemIndex !== index))
 }
+
+function moveItem(index: number, direction: -1 | 1) {
+  const target = index + direction
+  if (target < 0 || target >= values.value.length)
+    return
+  const nextValues = [...values.value]
+  const [item] = nextValues.splice(index, 1)
+  nextValues.splice(target, 0, item)
+  emit('update:modelValue', nextValues)
+}
 </script>
 
 <template>
@@ -58,15 +68,35 @@ function removeItem(index: number) {
         required
         @update:model-value="updateItem(index, $event)"
       />
-      <button
-        type="button"
-        class="inline-action danger-action list-item-remove"
-        :disabled="values.length <= minimum"
-        :aria-label="`Remove ${name} item ${index + 1}`"
-        @click="removeItem(index)"
-      >
-        Remove
-      </button>
+      <div class="list-item-controls">
+        <button
+          type="button"
+          class="inline-action"
+          :disabled="index === 0"
+          :aria-label="`Move ${name} item ${index + 1} up`"
+          @click="moveItem(index, -1)"
+        >
+          Up
+        </button>
+        <button
+          type="button"
+          class="inline-action"
+          :disabled="index === values.length - 1"
+          :aria-label="`Move ${name} item ${index + 1} down`"
+          @click="moveItem(index, 1)"
+        >
+          Down
+        </button>
+        <button
+          type="button"
+          class="inline-action danger-action list-item-remove"
+          :disabled="values.length <= minimum"
+          :aria-label="`Remove ${name} item ${index + 1}`"
+          @click="removeItem(index)"
+        >
+          Remove
+        </button>
+      </div>
     </div>
     <button
       type="button"
