@@ -55,12 +55,48 @@ const collections = config?.collections ?? inferredCollections
 const plugins = config?.plugins ?? []
 const collectionNames = new Map(Object.entries(collections).map(([name, collection]) => [collection, name]))
 
-function resolveField(field: StudioField, docs: Map<string, Record<string, unknown>>): StudioField {
-  if (field.type !== 'ref' || !field.ref)
-    return field
-  const [nsid, def = 'main'] = field.ref.split('#')
-  const target = docs.get(nsid!)?.[def]
-  return target && typeof target === 'object' ? { ...target as StudioField, description: field.description ?? (target as StudioField).description } : field
+function resolveRef(ref: string, currentNsid?: string) {
+  if (!ref.startsWith('#'))
+    return ref
+  return currentNsid ? `${currentNsid}${ref}` : ref
+}
+
+function splitRef(ref: string, currentNsid?: string) {
+  const normalized = resolveRef(ref, currentNsid)
+  const [nsid, def = 'main'] = normalized.split('#')
+  return { normalized, nsid, def }
+}
+
+function resolveField(field: StudioField, docs: Map<string, Record<string, unknown>>, trail = new Set<string>(), currentNsid?: string): StudioField {
+  if (field.type === 'ref' && field.ref) {
+    const { normalized, nsid, def } = splitRef(field.ref, currentNsid)
+    if (!nsid || trail.has(normalized))
+      return { ...field, ref: normalized }
+    const target = docs.get(nsid!)?.[def]
+    return target && typeof target === 'object'
+      ? resolveField({ ...target as StudioField, description: field.description ?? (target as StudioField).description }, docs, new Set([...trail, normalized]), nsid)
+      : { ...field, ref: normalized }
+  }
+  if (field.type === 'array' && field.items)
+    return { ...field, items: resolveField(field.items, docs, trail, currentNsid) }
+  if (field.type === 'object' && field.properties)
+    return { ...field, properties: Object.fromEntries(Object.entries(field.properties).map(([key, value]) => [key, resolveField(value, docs, trail, currentNsid)])) }
+  if (field.type === 'union' && field.refs) {
+    const refs = field.refs.map(ref => resolveRef(ref, currentNsid))
+    const variants = Object.fromEntries(refs.flatMap((ref) => {
+      if (trail.has(ref))
+        return []
+      const { nsid, def } = splitRef(ref, currentNsid)
+      if (!nsid)
+        return []
+      const target = docs.get(nsid!)?.[def]
+      return target && typeof target === 'object'
+        ? [[ref, resolveField(target as StudioField, docs, new Set([...trail, ref]), nsid)] as const]
+        : []
+    }))
+    return { ...field, refs, variants: Object.keys(variants).length ? variants : undefined }
+  }
+  return field
 }
 
 export function collectionDescriptions(): StudioCollection[] {
@@ -78,7 +114,7 @@ export function collectionDescriptions(): StudioCollection[] {
       description: main?.description,
       singleton: String(schema.key).startsWith('literal:'),
       fields: Object.fromEntries(Object.entries(record?.properties ?? {}).map(([key, field]) => {
-        const resolved = resolveField(field, byNsid)
+        const resolved = resolveField(field, byNsid, new Set(), schema.$type)
         const configuredRelation = Object.values(collection.relations as Record<string, Relation>).find(relation => relation.field === key)
         const relation = configuredRelation && collectionNames.get(configuredRelation.target())
         if (relation && configuredRelation.kind === 'hasMany' && resolved.type === 'array' && resolved.items)

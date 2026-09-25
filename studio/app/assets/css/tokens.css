@@ -10,6 +10,8 @@
   --color-accent: oklch(48% 0.16 258);
   --color-accent-ink: oklch(98% 0.008 258);
   --color-focus: oklch(52% 0.19 258);
+  --color-notice: oklch(72% 0.12 75);
+  --color-notice-bg: oklch(98.602% 0.00724 80.568);
 
   --font-display: 'Space Grotesk', system-ui, sans-serif;
   --font-body: 'Instrument Sans', system-ui, sans-serif;
@@ -61,5 +63,7 @@
     --color-accent: oklch(78% 0.13 250);
     --color-accent-ink: oklch(18% 0.03 258);
     --color-focus: oklch(78% 0.13 250);
+    --color-notice: oklch(78% 0.12 85);
+    --color-notice-bg: oklch(25% 0.025 85);
   }
 }
