@@ -1,58 +1,34 @@
-import { defineLexicons, field, l, record } from 'airspace/lexicon'
+import { defineLexicons, field, record } from 'airspace/lexicon'
 
-const markdownBlock = l.typedObject('dev.example.studio.block', 'markdown', l.object({
-  markdown: l.string({ maxGraphemes: 5_000, maxLength: 50_000 }),
-}))
-
-const imageBlock = l.typedObject('dev.example.studio.block', 'image', l.object({
-  image: l.blob({ accept: ['image/*'], maxSize: 2_000_000 }),
-  alt: l.string({ maxGraphemes: 160, maxLength: 1_600 }),
-}))
-
-const defs = defineLexicons({
-  'dev.example.studio.block': {
-    markdown: markdownBlock,
-    image: imageBlock,
-  },
-})
-
-const model = defineLexicons('dev.example.studio', {
-  author: record({
-    displayName: field.text({ max: 80 }),
-    website: field.url().optional(),
-  }),
-  tag: record({
-    label: field.text({ max: 32 }),
-  }),
-  article: record({
-    title: field.text({ max: 120 }),
-    content: field.list(field.raw(l.union([() => markdownBlock, () => imageBlock], { closed: true })), { max: 12 }),
+export default defineLexicons('dev.example.studio', {
+  article: {
+    title: field.text({ max: 120 }).describe('The headline shown in article lists.'),
+    body: field.markdown(),
     status: field.enum(['draft', 'review', 'published']),
-    topics: field.list(field.text({ max: 40 }), { max: 8 }).optional(),
-    author: field.ref('author').optional(),
-    tags: field.list(field.ref('tag'), { max: 4 }).optional(),
     featured: field.boolean().optional(),
-    priority: field.raw(l.integer({ minimum: 0, maximum: 10 })).optional(),
+    priority: field.number({ min: 0, max: 10 }).optional(),
     publishedAt: field.datetime().optional(),
     canonicalUrl: field.url().optional(),
+    topics: field.list(field.text({ max: 40 }), { max: 8 }).optional(),
+    author: field.ref('author').optional(),
+    cover: field.image({ max: 2_000_000 }).optional(),
     seo: field.object({
       title: field.text({ max: 70 }),
       description: field.text({ max: 160 }).optional(),
-      summary: field.text({ max: 160 }).optional(),
     }).optional(),
-    cover: field.raw(l.blob({ accept: ['image/*'], maxSize: 2_000_000 })).optional(),
-  }),
+  },
+
+  author: {
+    name: field.text({ max: 80 }),
+    bio: field.markdown({ max: 2_000 }).optional(),
+    website: field.url().optional(),
+    avatar: field.image({ max: 1_000_000 }).optional(),
+  },
+
   settings: record({
     siteName: field.text({ max: 80 }),
     description: field.text({ max: 240 }).optional(),
-    postsPerPage: field.raw(l.integer({ minimum: 1, maximum: 100 })),
+    postsPerPage: field.number({ min: 1, max: 100 }),
     showDrafts: field.boolean().optional(),
-    locale: field.raw(l.string({ format: 'language' })),
-    pinnedCid: field.raw(l.cid()).optional(),
-  }, { key: 'self' }),
+  }, { key: 'self', description: 'Site-wide publishing settings.' }),
 })
-
-export default {
-  ...defs,
-  ...model,
-}
