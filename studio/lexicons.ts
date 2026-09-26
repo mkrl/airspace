@@ -30,6 +30,7 @@ const article = l.record({
     title: l.string({ maxGraphemes: 120, maxLength: 1_200 }),
     content: l.array(l.union([() => markdownBlock, () => imageBlock], { closed: true }), { maxLength: 12 }),
     status: l.string({ knownValues: ['draft', 'review', 'published'] }),
+    topics: l.optional(l.array(l.string({ maxGraphemes: 40, maxLength: 400 }), { maxLength: 8 })),
     author: l.optional(l.ref(() => author.main)),
     tags: l.optional(l.array(l.ref(() => tag.main), { maxLength: 4 })),
     featured: l.optional(l.boolean()),
@@ -37,6 +38,7 @@ const article = l.record({
     publishedAt: l.optional(l.string({ format: 'datetime' })),
     canonicalUrl: l.optional(l.string({ format: 'uri' })),
     seo: l.optional(l.object({
+      description: l.optional(l.string({ maxGraphemes: 160, maxLength: 1_600 })),
       summary: l.string({ maxGraphemes: 160, maxLength: 1_600 }),
     })),
     cover: l.optional(l.blob({ accept: ['image/*'], maxSize: 2_000_000 })),
