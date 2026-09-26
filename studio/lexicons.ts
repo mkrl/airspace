@@ -1,54 +1,34 @@
-import { defineLexicons } from 'airspace/lexicon'
-import { aspectRatio } from './generated-lexicons/app/bsky/embed/defs.ts'
-import external, { external as externalCard } from './generated-lexicons/app/bsky/embed/external.ts'
-import gallery, { image as galleryImage } from './generated-lexicons/app/bsky/embed/gallery.ts'
-import images, { image as embedImage } from './generated-lexicons/app/bsky/embed/images.ts'
-import record from './generated-lexicons/app/bsky/embed/record.ts'
-import recordWithMedia from './generated-lexicons/app/bsky/embed/recordWithMedia.ts'
-import video, { caption } from './generated-lexicons/app/bsky/embed/video.ts'
-import post, { entity, replyRef, textSlice } from './generated-lexicons/app/bsky/feed/post.ts'
-import facet, { byteSlice, link, mention, tag } from './generated-lexicons/app/bsky/richtext/facet.ts'
-import { selfLabel, selfLabels } from './generated-lexicons/com/atproto/label/defs.ts'
-import strongRef from './generated-lexicons/com/atproto/repo/strongRef.ts'
+import { defineLexicons, field, record } from 'airspace/lexicon'
 
-export default defineLexicons({
-  'app.bsky.embed.defs': {
-    aspectRatio,
+export default defineLexicons('dev.example.studio', {
+  article: {
+    title: field.text({ max: 120 }).describe('The headline shown in article lists.'),
+    body: field.markdown(),
+    status: field.enum(['draft', 'review', 'published']),
+    featured: field.boolean().optional(),
+    priority: field.number({ min: 0, max: 10 }).optional(),
+    publishedAt: field.datetime().optional(),
+    canonicalUrl: field.url().optional(),
+    topics: field.list(field.text({ max: 40 }), { max: 8 }).optional(),
+    author: field.ref('author').optional(),
+    cover: field.image({ max: 2_000_000 }).optional(),
+    seo: field.object({
+      title: field.text({ max: 70 }),
+      description: field.text({ max: 160 }).optional(),
+    }).optional(),
   },
-  'app.bsky.embed.external': {
-    main: external,
-    external: externalCard,
+
+  author: {
+    name: field.text({ max: 80 }),
+    bio: field.markdown({ max: 2_000 }).optional(),
+    website: field.url().optional(),
+    avatar: field.image({ max: 1_000_000 }).optional(),
   },
-  'app.bsky.embed.gallery': {
-    main: gallery,
-    image: galleryImage,
-  },
-  'app.bsky.embed.images': {
-    main: images,
-    image: embedImage,
-  },
-  'app.bsky.embed.record': record,
-  'app.bsky.embed.recordWithMedia': recordWithMedia,
-  'app.bsky.embed.video': {
-    main: video,
-    caption,
-  },
-  'app.bsky.feed.post': {
-    main: post,
-    replyRef,
-    entity,
-    textSlice,
-  },
-  'app.bsky.richtext.facet': {
-    main: facet,
-    mention,
-    link,
-    tag,
-    byteSlice,
-  },
-  'com.atproto.label.defs': {
-    selfLabels,
-    selfLabel,
-  },
-  'com.atproto.repo.strongRef': strongRef,
+
+  settings: record({
+    siteName: field.text({ max: 80 }),
+    description: field.text({ max: 240 }).optional(),
+    postsPerPage: field.number({ min: 1, max: 100 }),
+    showDrafts: field.boolean().optional(),
+  }, { key: 'self', description: 'Site-wide publishing settings.' }),
 })

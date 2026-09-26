@@ -1,12 +1,14 @@
-import { defineCollection } from 'airspace'
+import { belongsTo, defineCollections } from 'airspace'
 import { defineStudio } from './config.ts'
 import lexicons from './lexicons.ts'
 
-const collections = {
-  post: defineCollection(lexicons['app.bsky.feed.post'].main, {
-    sort: [['createdAt', 'desc']],
-  }),
-}
+const collections = defineCollections(lexicons, collection => ({
+  article: {
+    relations: {
+      author: belongsTo(collection.author, 'author'),
+    },
+  },
+}))
 
 export default defineStudio({
   lexicons,
