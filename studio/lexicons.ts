@@ -16,14 +16,14 @@ const articleContent = lex.typedUnion([
 ], true)
 
 export default defineLexicons('dev.example.studio', {
-  author: {
+  author: record({
     displayName: field.text({ max: 80 }),
     website: field.url().optional(),
-  },
-  tag: {
+  }),
+  tag: record({
     label: field.text({ max: 32 }),
-  },
-  article: {
+  }),
+  article: record({
     title: field.text({ max: 120 }),
     content: field.list(field.raw(articleContent), { max: 12 }),
     status: field.enum(['draft', 'review', 'published']),
@@ -40,7 +40,7 @@ export default defineLexicons('dev.example.studio', {
       summary: field.text({ max: 160 }).optional(),
     }).optional(),
     cover: field.image({ max: 2_000_000 }).optional(),
-  },
+  }),
   settings: record({
     siteName: field.text({ max: 80 }),
     description: field.text({ max: 240 }).optional(),
