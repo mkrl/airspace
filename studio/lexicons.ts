@@ -10,12 +10,14 @@ const imageBlock = lex.typedObject('dev.example.studio.block', 'image', lex.obje
   alt: lex.string({ maxGraphemes: 160, maxLength: 1_600 }),
 }))
 
-const articleContent = lex.typedUnion([
-  lex.typedRef(() => markdownBlock),
-  lex.typedRef(() => imageBlock),
-], true)
+const defs = defineLexicons({
+  'dev.example.studio.block': {
+    markdown: markdownBlock,
+    image: imageBlock,
+  },
+})
 
-export default defineLexicons('dev.example.studio', {
+const model = defineLexicons('dev.example.studio', {
   author: record({
     displayName: field.text({ max: 80 }),
     website: field.url().optional(),
@@ -25,7 +27,7 @@ export default defineLexicons('dev.example.studio', {
   }),
   article: record({
     title: field.text({ max: 120 }),
-    content: field.list(field.raw(articleContent), { max: 12 }),
+    content: field.list(field.union([() => markdownBlock, () => imageBlock]), { max: 12 }),
     status: field.enum(['draft', 'review', 'published']),
     topics: field.list(field.text({ max: 40 }), { max: 8 }).optional(),
     author: field.ref('author').optional(),
@@ -50,3 +52,8 @@ export default defineLexicons('dev.example.studio', {
     pinnedCid: field.raw(lex.cid()).optional(),
   }, { key: 'self' }),
 })
+
+export default {
+  ...defs,
+  ...model,
+}
