@@ -10,6 +10,11 @@ const imageBlock = lex.typedObject('dev.example.studio.block', 'image', lex.obje
   alt: lex.string({ maxGraphemes: 160, maxLength: 1_600 }),
 }))
 
+const articleContent = lex.typedUnion([
+  lex.typedRef(() => markdownBlock),
+  lex.typedRef(() => imageBlock),
+], true)
+
 export default defineLexicons('dev.example.studio', {
   author: {
     displayName: field.text({ max: 80 }),
@@ -20,13 +25,13 @@ export default defineLexicons('dev.example.studio', {
   },
   article: {
     title: field.text({ max: 120 }),
-    content: field.list(field.union([() => markdownBlock, () => imageBlock]), { max: 12 }),
+    content: field.list(field.raw(articleContent), { max: 12 }),
     status: field.enum(['draft', 'review', 'published']),
     topics: field.list(field.text({ max: 40 }), { max: 8 }).optional(),
     author: field.ref('author').optional(),
     tags: field.list(field.ref('tag'), { max: 4 }).optional(),
     featured: field.boolean().optional(),
-    priority: field.number({ min: 0, max: 10 }).optional(),
+    priority: field.raw(lex.integer({ minimum: 0, maximum: 10 })).optional(),
     publishedAt: field.datetime().optional(),
     canonicalUrl: field.url().optional(),
     seo: field.object({
@@ -39,7 +44,7 @@ export default defineLexicons('dev.example.studio', {
   settings: record({
     siteName: field.text({ max: 80 }),
     description: field.text({ max: 240 }).optional(),
-    postsPerPage: field.number({ min: 1, max: 100 }),
+    postsPerPage: field.raw(lex.integer({ minimum: 1, maximum: 100 })),
     showDrafts: field.boolean().optional(),
     locale: field.text({ format: 'language' }),
     pinnedCid: field.raw(lex.cid()).optional(),
