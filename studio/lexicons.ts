@@ -38,8 +38,9 @@ const article = l.record({
     publishedAt: l.optional(l.string({ format: 'datetime' })),
     canonicalUrl: l.optional(l.string({ format: 'uri' })),
     seo: l.optional(l.object({
+      title: l.string({ maxGraphemes: 70, maxLength: 700 }),
       description: l.optional(l.string({ maxGraphemes: 160, maxLength: 1_600 })),
-      summary: l.string({ maxGraphemes: 160, maxLength: 1_600 }),
+      summary: l.optional(l.string({ maxGraphemes: 160, maxLength: 1_600 })),
     })),
     cover: l.optional(l.blob({ accept: ['image/*'], maxSize: 2_000_000 })),
   }),
@@ -48,6 +49,10 @@ const article = l.record({
 const settings = l.record({
   key: 'literal:self',
   record: l.object({
+    siteName: l.string({ maxGraphemes: 80, maxLength: 800 }),
+    description: l.optional(l.string({ maxGraphemes: 240, maxLength: 2_400 })),
+    postsPerPage: l.integer({ minimum: 1, maximum: 100 }),
+    showDrafts: l.optional(l.boolean()),
     locale: l.string({ format: 'language' }),
     pinnedCid: l.optional(l.cid()),
   }),
