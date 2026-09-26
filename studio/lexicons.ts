@@ -17,6 +17,11 @@ const defs = defineLexicons({
   },
 })
 
+const articleContent = lex.typedUnion([
+  lex.typedRef(() => markdownBlock),
+  lex.typedRef(() => imageBlock),
+], true)
+
 const model = defineLexicons('dev.example.studio', {
   author: record({
     displayName: field.text({ max: 80 }),
@@ -27,7 +32,7 @@ const model = defineLexicons('dev.example.studio', {
   }),
   article: record({
     title: field.text({ max: 120 }),
-    content: field.list(field.union([() => markdownBlock, () => imageBlock]), { max: 12 }),
+    content: field.list(field.raw(articleContent), { max: 12 }),
     status: field.enum(['draft', 'review', 'published']),
     topics: field.list(field.text({ max: 40 }), { max: 8 }).optional(),
     author: field.ref('author').optional(),
@@ -41,14 +46,14 @@ const model = defineLexicons('dev.example.studio', {
       description: field.text({ max: 160 }).optional(),
       summary: field.text({ max: 160 }).optional(),
     }).optional(),
-    cover: field.image({ max: 2_000_000 }).optional(),
+    cover: field.raw(lex.blob({ accept: ['image/*'], maxSize: 2_000_000 })).optional(),
   }),
   settings: record({
     siteName: field.text({ max: 80 }),
     description: field.text({ max: 240 }).optional(),
     postsPerPage: field.raw(lex.integer({ minimum: 1, maximum: 100 })),
     showDrafts: field.boolean().optional(),
-    locale: field.text({ format: 'language' }),
+    locale: field.raw(lex.string({ format: 'language' })),
     pinnedCid: field.raw(lex.cid()).optional(),
   }, { key: 'self' }),
 })
