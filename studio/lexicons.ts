@@ -47,7 +47,7 @@ const article = l.record({
 })
 
 const settings = l.record({
-  key: 'literal:self',
+  key: 'self',
   record: l.object({
     siteName: l.string({ maxGraphemes: 80, maxLength: 800 }),
     description: l.optional(l.string({ maxGraphemes: 240, maxLength: 2_400 })),
