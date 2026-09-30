@@ -1,6 +1,6 @@
 import { belongsTo, defineCollections } from 'airspace'
 import { defineStudio } from './config.ts'
-import lexicons from './lexicons.ts'
+import lexicons from './lexicons.example.ts'
 
 const collections = defineCollections(lexicons, collection => ({
   article: {

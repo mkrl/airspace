@@ -186,10 +186,18 @@ main h2 {
 
 .signin {
   display: grid;
+  flex: 1;
   gap: var(--space-xl);
   align-items: center;
+  align-content: center;
   max-width: 56rem;
-  margin: var(--space-lg) auto;
+  margin: 0 auto;
+}
+
+main.wide:has(> .signin) {
+  display: flex;
+  flex-direction: column;
+  padding-block: 0;
 }
 
 .signin form {

@@ -26,7 +26,7 @@
     </main>
 
     <footer class="site-footer">
-      <p>content stays in your atproto PDS.</p>
+      <p>content stays in your atproto PDS</p>
     </footer>
   </div>
 </template>

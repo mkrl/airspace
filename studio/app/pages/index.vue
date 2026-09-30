@@ -39,8 +39,9 @@ useSeoMeta({ title: 'airspace studio', description: 'Edit typed content in your 
 <template>
   <section v-if="studio && !studio.configured" class="setup">
     <span class="setup-mark" aria-hidden="true">{ }</span>
-    <h1>Add your content model</h1>
-    <p>Studio looks for <code>studio/lexicons.ts</code> or <code>studio/studio.config.ts</code>. Export the same Airspace model your application uses, then restart the development server.</p>
+    <h1>add your content model</h1>
+    <p>airspace studio looks for <code>lexicons.ts</code> or <code>studio.config.ts</code>.</p>
+    <p>Export the same airspace <a href="https://getair.space/docs/model" target="_blank">model</a> your application uses, then restart the server.</p>
     <pre><code>import { defineLexicons, field } from 'airspace/lexicon'
 
 export default defineLexicons('dev.example', {
@@ -55,8 +56,8 @@ export default defineLexicons('dev.example', {
 
   <section v-else-if="studio && !studio.account" class="signin">
     <div>
-      <h1>Your lexicon, with an editing desk.</h1>
-      <p>Sign in with an app password to manage records in your PDS.</p>
+      <h1>your own data with its' own CMS.</h1>
+      <p>sign in with an app password to manage records in your PDS</p>
     </div>
     <form @submit.prevent="signIn">
       <label>Service <input name="service" type="url" value="https://bsky.social" required></label>
