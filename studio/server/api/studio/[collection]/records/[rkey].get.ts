@@ -1,11 +1,9 @@
-import { getRouterParam } from 'nitro/h3'
-import { createError, defineEventHandler, toNuxtRequestEvent } from 'nuxt/server'
+import { createError, defineEventHandler, getRouterParam } from 'nuxt/server'
 import { isMissingRepository, requireCollection, useStudio } from '../../../../utils/studio.ts'
 
 export default defineEventHandler(async (event) => {
-  const request = toNuxtRequestEvent(event)
-  const name = getRouterParam(request, 'collection')!
-  const rkey = getRouterParam(request, 'rkey')!
+  const name = getRouterParam(event, 'collection')!
+  const rkey = getRouterParam(event, 'rkey')!
   const collection = requireCollection(name)
   const client = (await useStudio(event)).collections[name]
   let record

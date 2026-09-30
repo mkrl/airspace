@@ -1,5 +1,5 @@
-import { getQuery, getRouterParam } from 'nitro/h3'
-import { createError, defineEventHandler, toNuxtRequestEvent } from 'nuxt/server'
+import { getQuery } from 'nitro/h3'
+import { createError, defineEventHandler, getRouterParam } from 'nuxt/server'
 import { collectionDescriptions, requireCollection, useStudio } from '../../../utils/studio.ts'
 
 function text(value: unknown): string {
@@ -11,7 +11,7 @@ function text(value: unknown): string {
 }
 
 export default defineEventHandler(async (event) => {
-  const name = getRouterParam(toNuxtRequestEvent(event), 'collection')!
+  const name = getRouterParam(event, 'collection')!
   const collection = requireCollection(name)
   const client = (await useStudio(event)).collections[name]
   const query = getQuery(event)

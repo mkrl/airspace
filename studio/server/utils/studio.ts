@@ -4,9 +4,8 @@ import type { StudioCollection, StudioField } from '#shared/studio'
 import type { StudioConfig } from '../../config.ts'
 import { ConflictError, createAirspace, defineCollection, passwordSession } from 'airspace'
 import { toLexiconJson } from 'airspace/lexicon'
-import { useSession } from 'nitro/h3'
 import { useRuntimeConfig } from 'nitro/runtime-config'
-import { createError, toNuxtRequestEvent } from 'nuxt/server'
+import { createError, useSession } from 'nuxt/server'
 import importedConfig from '#studio-config'
 import lexicons from '#studio-lexicons'
 
@@ -26,7 +25,7 @@ function cookie() {
   }
 }
 
-export const studioSession = (event: RequestEvent) => useSession<Partial<Credentials>>(toNuxtRequestEvent(event), cookie())
+export const studioSession = (event: RequestEvent) => useSession<Partial<Credentials>>(event, cookie())
 
 const config = importedConfig as StudioConfig | null
 const model = (config?.lexicons ?? lexicons) as Record<string, unknown> | null

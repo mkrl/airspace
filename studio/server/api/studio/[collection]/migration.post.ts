@@ -1,9 +1,8 @@
-import { getRouterParam } from 'nitro/h3'
-import { createError, defineEventHandler, readBody, toNuxtRequestEvent } from 'nuxt/server'
+import { createError, defineEventHandler, getRouterParam, readBody } from 'nuxt/server'
 import { prepareMigrationValue, requireCollection, useStudio } from '../../../utils/studio.ts'
 
 export default defineEventHandler(async (event) => {
-  const name = getRouterParam(toNuxtRequestEvent(event), 'collection')!
+  const name = getRouterParam(event, 'collection')!
   requireCollection(name)
   const client = (await useStudio(event)).collections[name]
   const body = await readBody<{ values?: Record<string, Record<string, unknown>> }>(event)
