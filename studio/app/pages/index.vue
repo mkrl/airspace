@@ -60,7 +60,7 @@ export default defineLexicons('dev.example', {
       <p>sign in with an app password to manage records in your PDS</p>
     </div>
     <form @submit.prevent="signIn">
-      <label>Service <input name="service" type="url" value="https://bsky.social" required></label>
+      <label>Service <input name="service" type="url" :value="studio.defaultService" required></label>
       <label>Handle or email <input name="identifier" autocomplete="username" required></label>
       <label>App password <input name="password" type="password" autocomplete="current-password" required></label>
       <button class="primary-action" :disabled="busy">{{ busy ? 'Signing in…' : 'Sign in' }}</button>

@@ -3,9 +3,7 @@
 A schema-driven editor for records stored in an Atproto PDS.
 
 ```sh
-cp .env.example .env
-pnpm install
-pnpm dev
+npx airspace-studio
 ```
 
 Studio loads `lexicons.ts` from this directory for a "zero-config" setup. Export an Airspace lexicon map:
@@ -14,10 +12,10 @@ Studio loads `lexicons.ts` from this directory for a "zero-config" setup. Export
 import { defineLexicons, field } from 'airspace/lexicon'
 
 export default defineLexicons('dev.example', {
-	note: {
-		title: field.text({ max: 120 }),
-		body: field.markdown(),
-	},
+  note: {
+    title: field.text({ max: 120 }),
+    body: field.markdown(),
+  },
 })
 ```
 
@@ -27,21 +25,21 @@ For configured collections, relations, or plugins, add `studio.config.ts`. The c
 
 ```ts
 import { belongsTo, defineCollections } from 'airspace'
-import { defineStudio } from './config.ts'
+import { defineStudio } from 'airspace-studio'
 import lexicons from './lexicons.ts'
 
 const collections = defineCollections(lexicons, collection => ({
-	article: {
-		relations: {
-			author: belongsTo(collection.author, 'author'),
-		},
-	},
+  article: {
+    relations: {
+      author: belongsTo(collection.author, 'author'),
+    },
+  },
 }))
 
 export default defineStudio({
-	lexicons,
-	collections,
-	// plugins: [timestamps()],
+  lexicons,
+  collections,
+  // plugins: [timestamps()],
 })
 ```
 

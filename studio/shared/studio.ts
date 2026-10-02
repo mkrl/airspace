@@ -77,4 +77,5 @@ export interface StudioSession {
 
 export interface StudioState extends StudioSession {
   collections: StudioCollection[]
+  defaultService: string
 }

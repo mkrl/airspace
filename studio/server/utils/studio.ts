@@ -1,7 +1,7 @@
 import type { AnyCollection, DidString, Plugin, Relation } from 'airspace'
 import type { RequestEvent } from 'nuxt/server'
 import type { StudioCollection, StudioField } from '#shared/studio'
-import type { StudioConfig } from '../../config.ts'
+import type { StudioConfig } from '../../src/index.ts'
 import { ConflictError, createAirspace, defineCollection, passwordSession } from 'airspace'
 import { toLexiconJson } from 'airspace/lexicon'
 import { useRuntimeConfig } from 'nitro/runtime-config'
